@@ -78,8 +78,6 @@ type IdentEntry = Either TypeDef IdentDecl
 identOfTyDecl :: IdentEntry -> Ident
 identOfTyDecl = either identOfTypeDef declIdent
 
-data TagFwdDecl = CompDecl CompTypeRef
-                | EnumDecl EnumTypeRef
 instance HasSUERef TagFwdDecl where
   sueRef (CompDecl ctr) = sueRef ctr
   sueRef (EnumDecl etr) = sueRef etr

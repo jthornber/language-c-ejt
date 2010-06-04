@@ -50,6 +50,7 @@ VarName(..),identOfVarName,isNoName,AsmName,
 Attr(..),Attributes,noAttributes,mergeAttributes,
 -- * Statements and Expressions (STUB, aliases to Syntax)
 Stmt,Expr,Initializer,AsmBlock,
+TagFwdDecl(..)
 )
 where
 import Language.C.Data
@@ -60,6 +61,9 @@ import Data.Map (Map)
 import qualified Data.Map as Map
 import Data.Generics
 import Text.PrettyPrint.HughesPJ
+
+data TagFwdDecl = CompDecl CompTypeRef
+                | EnumDecl EnumTypeRef
 
 -- | accessor class : struct\/union\/enum names
 class HasSUERef a where
@@ -185,7 +189,9 @@ mergeGlobalDecls gmap1 gmap2 = GlobalDecls
 --
 -- Those events are reported to callbacks, which are executed during the traversal.
 data DeclEvent =
-       TagEvent  TagDef
+       TagDeclEvent TagFwdDecl
+       -- ^ Forward declarations of sue types.
+     | TagEvent  TagDef
        -- ^ file-scope struct\/union\/enum event
      | DeclEvent IdentDecl
        -- ^ file-scope declaration or definition

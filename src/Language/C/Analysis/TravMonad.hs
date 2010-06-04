@@ -99,7 +99,7 @@ class (MonadName m, MonadSymtab m, MonadCError m) => MonadTrav m where
 
 -- * handling declarations
 
--- check wheter a redefinition is ok
+-- check whether a redefinition is ok
 checkRedef :: (MonadCError m, CNode t, CNode t1) => String -> t -> (DeclarationStatus t1) -> m ()
 checkRedef subject new_decl redecl_status =
     case redecl_status of
@@ -115,10 +115,11 @@ checkRedef subject new_decl redecl_status =
 
 -- | forward declaration of a tag. Only neccessary for name analysis, but otherwise no semantic
 -- consequences.
-handleTagDecl :: (MonadCError m, MonadSymtab m) => TagFwdDecl -> m ()
+handleTagDecl :: (MonadTrav m) => TagFwdDecl -> m ()
 handleTagDecl decl = do
     redecl <- withDefTable $ declareTag (sueRef decl) decl
     checkRedef (show $ sueRef decl) decl redecl
+    handleDecl (TagDeclEvent decl)
 
 -- | define the given composite type or enumeration
 -- If there is a declaration visible, overwrite it with the definition.
