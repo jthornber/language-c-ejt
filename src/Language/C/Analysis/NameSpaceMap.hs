@@ -25,7 +25,7 @@ module Language.C.Analysis.NameSpaceMap (
     defGlobal,
     enterNewScope, leaveScope,
     defLocal,
-    lookupName,lookupGlobal,lookupInnermostScope,
+    lookupName,lookupGlobal,lookupLocal,lookupInnermostScope,
     mergeNameSpace
     )
 where
@@ -121,17 +121,20 @@ defLocal (NsMap    gs (ls:lss)) ident def =
 -- if there is one.
 lookupName :: (Ord k) => NameSpaceMap k a -> k -> Maybe a
 lookupName ns@(NsMap _ localDefs) ident
-    = case (lookupLocal localDefs) of
+    = case lookupLocal ns ident of
         Nothing  -> lookupGlobal ns ident
         Just def -> Just def
-  where
-    lookupLocal []       = Nothing
-    lookupLocal (ls:lss) = case (Prelude.lookup ident ls) of
-                        Nothing  -> lookupLocal lss
-                        Just def -> Just def
 
 lookupGlobal :: (Ord k) => NameSpaceMap k a -> k -> Maybe a
 lookupGlobal (NsMap gs _) ident = Map.lookup ident gs
+
+lookupLocal :: (Ord k) => NameSpaceMap k a -> k -> Maybe a
+lookupLocal (NsMap _ localDefs) ident = lookup' localDefs
+  where
+    lookup' []       = Nothing
+    lookup' (ls:lss) = case (Prelude.lookup ident ls) of
+      Nothing  -> lookup' lss
+      Just def -> Just def
 
 lookupInnermostScope :: (Ord k) => NameSpaceMap k a -> k -> Maybe a
 lookupInnermostScope nsm@(NsMap _gs localDefs) ident  =
